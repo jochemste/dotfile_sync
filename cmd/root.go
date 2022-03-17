@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"fmt"
+	//"fmt"
 	"log"
 	"os"
 
-	"github.com/jochemste/dotfile_sync/libdotfilesync"
+	//"github.com/jochemste/dotfile_sync/libdotfilesync"
 
 	"github.com/spf13/cobra"
 )
