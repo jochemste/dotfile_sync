@@ -21,3 +21,7 @@ func Execute() {
 		log.Fatalln(os.Stderr, err)
 	}
 }
+
+func init() {
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Verbose output")
+}
