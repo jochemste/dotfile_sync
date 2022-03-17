@@ -4,7 +4,8 @@ import (
 	//"log"
 	"fmt"
 
-	"github.com/jochemste/dotfile_sync/libdotfilesync"
+	//"github.com/jochemste/dotfile_sync/libdotfilesync"
+	"github.com/jochemste/dotfile_sync/dotfilesync"
 
 	"github.com/spf13/cobra"
 )
@@ -20,7 +21,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 	if verbose == true {
 	}
 	fmt.Println("Running sync")
-	libdotfilesync.Sync()
+	dotfilesync.Sync()
 	return nil
 }
 
