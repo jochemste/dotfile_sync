@@ -16,3 +16,5 @@ dotfile_sync
 # vendor/
 
 *test.toml*
+*id_rsa*
+tmp/

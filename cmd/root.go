@@ -1,12 +1,9 @@
 package cmd
 
 import (
-	//"fmt"
 	"log"
-	"os"
 
-	//"github.com/jochemste/dotfile_sync/libdotfilesync"
-
+	"github.com/jochemste/dotfile_sync/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -18,10 +15,11 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalln(os.Stderr, err)
+		log.Fatalln(err)
 	}
 }
 
 func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Verbose output")
+	rootCmd.PersistentFlags().StringP("config", "c", utils.CONFDIR+"/config.toml", "Configuration file to be used")
 }

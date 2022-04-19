@@ -16,12 +16,21 @@ func runInit(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	configfile, err := rootCmd.Flags().GetString("config")
+	if err != nil {
+		return err
+	}
+
+	interactive, err := cmdInit.Flags().GetBool("interactive")
+	if err != nil {
+		return err
+	}
 
 	if verbose == true {
 	}
 	fmt.Println("Running init")
-	dotfilesync.Init("./test.toml")
-	return nil
+	err = dotfilesync.Init(interactive, configfile)
+	return err
 }
 
 func init() {
@@ -30,6 +39,8 @@ func init() {
 		Short: "Initialise",
 		RunE:  runInit,
 	}
+
+	cmdInit.Flags().BoolP("interactive", "i", false, "Initialise interactively")
 
 	rootCmd.AddCommand(cmdInit)
 }

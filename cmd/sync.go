@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	//"log"
 	"fmt"
 
-	//"github.com/jochemste/dotfile_sync/libdotfilesync"
 	"github.com/jochemste/dotfile_sync/dotfilesync"
+	"github.com/jochemste/dotfile_sync/libdotfilesync"
 
 	"github.com/spf13/cobra"
 )
@@ -21,7 +20,19 @@ func runSync(cmd *cobra.Command, args []string) error {
 	if verbose == true {
 	}
 	fmt.Println("Running sync")
-	dotfilesync.Sync()
+
+	// Getting config (file should be cli parameter with default value)
+	config := libdotfilesync.NewConfig()
+	configfile, err := rootCmd.Flags().GetString("config")
+	if err != nil {
+		return err
+	}
+	err = config.FromFile(configfile)
+	if err != nil {
+		return err
+	}
+
+	dotfilesync.Sync(config)
 	return nil
 }
 
