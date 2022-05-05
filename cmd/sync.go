@@ -32,8 +32,8 @@ func runSync(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	dotfilesync.Sync(config)
-	return nil
+	err = dotfilesync.Sync(config, configfile)
+	return err
 }
 
 func init() {

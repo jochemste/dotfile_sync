@@ -103,7 +103,9 @@ func GetLastModified(path string) (time.Time, error) {
 		return time.Now(), errors.New("File does not exist")
 	}
 	fStat, err := os.Stat(path)
-	CheckIfError(err)
+	if err != nil {
+		return time.Now(), errors.New("Could not stat " + path + ": " + err.Error())
+	}
 	return fStat.ModTime(), nil
 }
 
@@ -145,4 +147,58 @@ func IsDiff(path1 string, path2 string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func CreateFile(filename string) error {
+	fd, err := os.Create(filename)
+	if err != nil {
+		return errors.New("Could not create " + filename + ": " + err.Error())
+	}
+	defer fd.Close()
+
+	return nil
+}
+
+func WriteToFile(filename string, content string) error {
+	if FileExists(filename) == false {
+		err := CreateFile(filename)
+		if err != nil {
+			return errors.New("Could not write to " + filename + ": " + err.Error())
+		}
+	}
+	perm, err := getFilePerm(filename)
+	if err != nil {
+		return errors.New("Could not write to " + filename + ": " + err.Error())
+	}
+	err = os.WriteFile(filename, []byte(content), perm)
+
+	if err != nil {
+		return errors.New("Could not write to " + filename + ": " + err.Error())
+	}
+
+	return nil
+}
+
+func CopyFile(source string, dest string) error {
+	c1, err := ioutil.ReadFile(source)
+	if err != nil {
+		return errors.New("Could not copy file: " + err.Error())
+	}
+
+	perm, err := getFilePerm(source)
+	if err != nil {
+		return errors.New("Could not copy file: " + err.Error())
+	}
+
+	err = ioutil.WriteFile(dest, c1, perm)
+	if err != nil {
+		return errors.New("Could not copy file: " + err.Error())
+	}
+
+	return nil
+}
+
+func getFilePerm(filename string) (os.FileMode, error) {
+	stat, err := os.Stat(filename)
+	return stat.Mode(), err
 }

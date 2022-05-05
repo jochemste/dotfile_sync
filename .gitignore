@@ -5,6 +5,7 @@
 *.so
 *.dylib
 dotfile_sync
+dfsync
 
 # Test binary, built with `go test -c`
 *.test

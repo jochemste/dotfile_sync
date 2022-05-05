@@ -23,6 +23,7 @@ type DontChangeConfig struct {
 	LastCheck time.Time
 	NrSync    int
 	Store     string
+	File      string
 }
 
 // Configuration struct
@@ -32,10 +33,17 @@ type Config struct {
 }
 
 // Write the Config object to a file
-func (config *Config) ToFile(file string) error {
-	fd, err := os.Create(file)
+func (config *Config) ToFile(file ...string) error {
+	var fp string
+	if len(file) == 0 {
+		fp = config.DoNotChange.File
+	} else {
+		fp = file[0]
+	}
+
+	fd, err := os.Create(fp)
 	if err != nil {
-		return errors.New("Could not create file " + file)
+		return errors.New("Could not create file " + fp)
 	}
 
 	if err := toml.NewEncoder(fd).Encode(config); err != nil {
@@ -64,15 +72,21 @@ func (config *Config) FromFile(file string) error {
 		return err
 	}
 
+	config.DoNotChange.File = file
+
 	return nil
 }
 
 func (config *Config) Print() {
-	fmt.Printf("Configuration:\n\t%s:\t%s\n", "Origin", config.UserSettings.Origin)
+	fmt.Printf("Configuration:\n")
+	fmt.Printf("\tLocation: %s\n", config.DoNotChange.File)
+	fmt.Printf("\tOrigin: %s\n", config.UserSettings.Origin)
 	fmt.Printf("\tFiles:\n")
 	for _, file := range config.UserSettings.Files {
 		fmt.Printf("\t\t%s\n", file)
 	}
+	fmt.Printf("\tNr Synchronisations: %d\n", config.DoNotChange.NrSync)
+	fmt.Printf("\tLastCheck: %s\n", config.DoNotChange.LastCheck)
 }
 
 // Get a new Config object
