@@ -58,11 +58,6 @@ func DeleteRepoIfExists(store_loc string) error {
 
 func (g *Gitter) CloneRepo(origin string, store_loc string, secret ...string) error {
 	NewFS()
-	//fs := NewFS()
-	/*method, err := DetermMethod(origin)
-	if err != nil {
-		return nil, err
-	}*/
 
 	//Delete the repo if it exists
 	err := DeleteRepoIfExists(store_loc)
@@ -110,16 +105,8 @@ func (g *Gitter) CommitToRepo(filename string, message string) error {
 	fmt.Println(status)
 	fmt.Printf("Committing %s\n", filename)
 
-	//var worktree *git.Worktree
-	//worktree, err := g.Repository.Worktree()
-	//if err != nil {
-	//	errors.New("Could not commit " + filename + ": " + err.Error())
-	//}
-
-	//worktree.Add(filename)
 	g.Worktree.Add(filename)
 
-	//worktree.Commit("AUTO: "+message, &git.CommitOptions{})
 	commit, err := g.Worktree.Commit("AUTO: "+message, &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "dotfile_sync",

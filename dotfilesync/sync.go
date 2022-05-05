@@ -16,8 +16,6 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 	fmt.Println("Syncing...")
 
 	err := repo.CloneRepo(config.UserSettings.Origin, config.DoNotChange.Store, config.UserSettings.AccessToken)
-	//r, err := libdotfilesync.CloneRepo(config.UserSettings.Origin, config.DoNotChange.Store, config.UserSettings.AccessToken)
-	//repo.Repository = r
 	if err != nil {
 		return errors.New("Could not clone repo: " + err.Error())
 	}
