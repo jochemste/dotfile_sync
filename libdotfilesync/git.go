@@ -25,7 +25,6 @@ type Gitter struct {
 func NewRepo() *Gitter {
 	g := Gitter{}
 	g.Storer = memory.NewStorage()
-	//g.Filesystem = NewFS()
 	return &g
 }
 
@@ -56,14 +55,10 @@ func DeleteRepoIfExists(store_loc string) error {
 	return nil
 }
 
-func (g *Gitter) CloneRepo(origin string, store_loc string, secret ...string) error {
+func (g *Gitter) CloneRepo(origin string, secret ...string) error {
 	NewFS()
 
-	//Delete the repo if it exists
-	err := DeleteRepoIfExists(store_loc)
-	if err != nil {
-		return err
-	}
+	var err error
 
 	if len(secret) != 1 {
 		// Git clone
@@ -98,16 +93,11 @@ func (g *Gitter) CloneRepo(origin string, store_loc string, secret ...string) er
 }
 
 func (g *Gitter) CommitToRepo(filename string, message string) error {
-	status, err := g.Worktree.Status()
-	if err != nil {
-		return err
-	}
-	fmt.Println(status)
 	fmt.Printf("Committing %s\n", filename)
 
 	g.Worktree.Add(filename)
 
-	commit, err := g.Worktree.Commit("AUTO: "+message, &git.CommitOptions{
+	_, err := g.Worktree.Commit("AUTO: "+message, &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "dotfile_sync",
 			Email: "none@none.test",
@@ -116,15 +106,6 @@ func (g *Gitter) CommitToRepo(filename string, message string) error {
 	if err != nil {
 		return err
 	}
-
-	status, err = g.Worktree.Status()
-	if err != nil {
-		return err
-	}
-	fmt.Println(status)
-
-	obj, err := g.Repository.CommitObject(commit)
-	fmt.Println(obj)
 
 	return nil
 }

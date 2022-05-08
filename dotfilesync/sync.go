@@ -15,45 +15,54 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 	config.Print()
 	fmt.Println("Syncing...")
 
-	err := repo.CloneRepo(config.UserSettings.Origin, config.DoNotChange.Store, config.UserSettings.AccessToken)
+	// Clone the repository to memory
+	err := repo.CloneRepo(config.UserSettings.Origin, config.UserSettings.AccessToken)
 	if err != nil {
 		return errors.New("Could not clone repo: " + err.Error())
 	}
 
 	// Check if Syncconfig file exists in repo
 	if libdotfilesync.ExistsInFS(libdotfilesync.Syncfilepath) == false {
+		// If it does not exist, create it and set the time back more than 10 years
 		t := time.Now()
 		t = t.AddDate(-10, -1, -1)
-		fmt.Println(t)
-		fmt.Println(time.Now())
 		syncconfig.SetLastSync(t)
 		syncconfig.ToFS()
 		fmt.Println("Syncconfig did not exist yet")
 	} else {
-		fmt.Println("Syncconfig did not exist yet")
+		// If it does exit, load it
+		fmt.Println("Syncconfig exists")
 		syncconfig.FromFS()
 	}
 	syncconfig.Print()
 
 	// Loop through the files to check for changes
 	for _, f := range config.UserSettings.Files {
+
+		// Create filemap for file
 		fm := libdotfilesync.NewFileMap()
 		fm.Origin = f
 		fm.FSPath, err = libdotfilesync.FindInFS(fm.GetOriginFilename())
-		if err != nil {
+		if err != nil && err.Error() == "Could not find file: File was not found" {
+			fmt.Printf("%s does not exist in repo yet.\n", fm.GetOriginFilename())
+		} else if err != nil {
 			return errors.New("Could not find file " + fm.GetOriginFilename() + ": " + err.Error())
 		}
 		fm.FSTime = syncconfig.LastSync
 		fm.Refresh()
 
+		// Determine if the file has changed (either local or remote)
 		isdiff, err := fm.HasChanged()
 		if err != nil {
 			return errors.New("Could not get diff: " + err.Error())
 		}
 
-		fmt.Printf("%s has changed: %t\n", fm.GetOriginFilename(), isdiff)
+		// If the file has changed
 		if isdiff == true {
+			// Update the file and determine if a commit is needed
 			fm.Update(config.UserSettings.Mode)
+
+			// If a commit is needed, commit the file to the repo
 			if fm.NeedsCommit == true {
 				err = repo.CommitToRepo(fm.GetFSFilename(), fm.Message)
 				if err != nil {
@@ -81,6 +90,7 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 		return errors.New("Could not write config file: " + err.Error())
 	}
 
+	// Push the repository to the remote
 	err = repo.PushToRemote(config.UserSettings.AccessToken)
 	if err != nil {
 		return errors.New("Could not push to remote: " + err.Error())
