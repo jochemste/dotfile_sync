@@ -53,7 +53,7 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 
 		fmt.Printf("%s has changed: %t\n", fm.GetOriginFilename(), isdiff)
 		if isdiff == true {
-			fm.Update()
+			fm.Update(config.UserSettings.Mode)
 			if fm.NeedsCommit == true {
 				err = repo.CommitToRepo(fm.GetFSFilename(), fm.Message)
 				if err != nil {

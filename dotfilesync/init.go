@@ -31,6 +31,7 @@ func initNonInteractive(file_path string) error {
 	config.UserSettings.Origin = "http://example.com/replace_with_repository_url"
 	config.UserSettings.Files = files
 	config.UserSettings.AccessToken = "REPLACE_WITH_ACCESSTOKEN"
+	config.UserSettings.Mode = "all"
 	config.DoNotChange.LastCheck = time.Now()
 	config.DoNotChange.NrSync = 0
 	config.DoNotChange.Store = "/tmp/dotfile_sync"
@@ -88,6 +89,7 @@ func initInteractive(file_path string) error {
 	config.UserSettings.Origin = "http://example.com/replace_with_repository_url"
 	config.UserSettings.Files = files
 	config.UserSettings.AccessToken = "REPLACE_WITH_ACCESSTOKEN"
+	config.UserSettings.Mode = "all"
 	config.DoNotChange.LastCheck = time.Now()
 	config.DoNotChange.NrSync = 0
 

@@ -16,6 +16,7 @@ type UserConfig struct {
 	Origin      string
 	Files       []string
 	AccessToken string
+	Mode        string
 }
 
 // Information that is used and adjusted automatically
@@ -81,6 +82,7 @@ func (config *Config) Print() {
 	fmt.Printf("Configuration:\n")
 	fmt.Printf("\tLocation: %s\n", config.DoNotChange.File)
 	fmt.Printf("\tOrigin: %s\n", config.UserSettings.Origin)
+	fmt.Printf("\tMode: %s\n", config.UserSettings.Mode)
 	fmt.Printf("\tFiles:\n")
 	for _, file := range config.UserSettings.Files {
 		fmt.Printf("\t\t%s\n", file)

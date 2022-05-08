@@ -89,10 +89,37 @@ func (fm *FileMap) ExistsInFS() bool {
 	return ExistsInFS(fm.GetOriginFilename())
 }
 
-func (fm *FileMap) Update() error {
+// Update the Files in the file map
+func (fm *FileMap) Update(mode ...string) error {
+	// Variables to track push/pull mode
+	var push bool
+	var pull bool
 
-	if fm.ExistsInFS() == false && fm.ExistsLocal() == true {
-		// If FS does not contain file, create it in FS
+	if len(mode) == 0 {
+		mode = append(mode, "push")
+	}
+
+	switch mode[0] {
+	case "all":
+		fmt.Println("Pushing and Pulling enabled")
+		push = true
+		pull = true
+	case "pull":
+		fmt.Println("Pulling enabled")
+		pull = true
+		push = false
+	case "push":
+		fmt.Println("Pushing enabled")
+		push = true
+		pull = false
+	default:
+		fmt.Println("Mode not recognised, Pulling enabled")
+		push = false
+		pull = true
+	}
+
+	if push == true && fm.ExistsInFS() == false && fm.ExistsLocal() == true {
+		// If FS does not contain file, create it in FS (PUSH action)
 		fmt.Printf("Update: Writing file in FS: %s\n", fm.FSPath)
 		content, err := utils.GetFileContent(fm.Origin)
 		if err != nil {
@@ -103,8 +130,8 @@ func (fm *FileMap) Update() error {
 		fm.Message = "Created file " + fm.GetOriginFilename()
 
 		return WriteToFS(fm.GetOriginFilename(), content)
-	} else if fm.ExistsInFS() == true && fm.ExistsLocal() == false {
-		// If local machine does not contain file, create it locally
+	} else if pull == true && fm.ExistsInFS() == true && fm.ExistsLocal() == false {
+		// If local machine does not contain file, create it locally (PULL action)
 		fmt.Printf("Update: Writing file in local: %s\n", fm.Origin)
 		content, err := GetContentFS(fm.FSPath)
 		if err != nil {
@@ -142,13 +169,14 @@ func (fm *FileMap) Update() error {
 	fmt.Println(fm.OriginTime)
 	fmt.Println(fm.FSTime)
 
-	if utils.IsMoreRecentTime(fm.OriginTime, fm.FSTime) == true {
-		// If local file is more recent, update the FS file
+	ogIsMoreRecent := utils.IsMoreRecentTime(fm.OriginTime, fm.FSTime)
+	if push == true && ogIsMoreRecent == true {
+		// If local file is more recent, update the FS file (PUSH action)
 		fmt.Printf("Update: Local is more recent: %s\n", fm.Origin)
 		WriteToFS(fm.FSPath, cOrigin)
 		fm.NeedsCommit = true
 		fm.Message = "Changed " + fm.GetOriginFilename()
-	} else {
+	} else if pull == true && !ogIsMoreRecent {
 		// If FS file is more recent, update local file
 		fmt.Printf("Update: FS is more recent: %s\n", fm.FSPath)
 		utils.CopyFile(fm.Origin, fm.Origin+".bak")
