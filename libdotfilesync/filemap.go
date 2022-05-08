@@ -42,7 +42,7 @@ func (fm *FileMap) Refresh() {
 	fm.OriginTime, _ = fm.GetModTimeOrigin()
 }
 
-// Determine if a file has changed
+// Determine if a file has changed. Returns true if it has or the file does not exist in the local filesystem and/or the memory filesystem
 func (fm *FileMap) HasChanged() (bool, error) {
 	// If has been run before and file has changed, return the prev result.
 	if fm.Changed == true {
