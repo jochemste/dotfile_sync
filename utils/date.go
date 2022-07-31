@@ -37,3 +37,12 @@ func IsMoreRecentTime(t1 time.Time, t2 time.Time) bool {
 
 	return false
 }
+
+func IsSameTime(t1 time.Time, t2 time.Time) bool {
+	delta := t1.Sub(t2)
+	if delta == 0 {
+		return true
+	}
+
+	return false
+}

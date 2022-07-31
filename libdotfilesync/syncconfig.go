@@ -75,6 +75,24 @@ func (sc *SyncConfig) AddFile(s SyncFile) {
 	SyncChanged = true
 }
 
+func (sc *SyncConfig) AddNewFile(filename string) {
+	t := time.Now()
+	s := SyncFile{}
+	s.Name = filename
+	s.LastSync = t
+	sc.AddFile(s)
+}
+
+func (sc *SyncConfig) IsInSync(filename string) bool {
+	// Loop over files to check for existence
+	for _, sc := range sc.Files {
+		if filename == sc.Name {
+			return true
+		}
+	}
+	return false
+}
+
 func NewSyncConfig() *SyncConfig {
 	return &SyncConfig{}
 }

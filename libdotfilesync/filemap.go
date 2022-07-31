@@ -89,6 +89,26 @@ func (fm *FileMap) ExistsInFS() bool {
 	return ExistsInFS(fm.GetOriginFilename())
 }
 
+func (fm *FileMap) FMIsMoreRecent() bool {
+	if fm.LocalIsMoreRecent() {
+		return false
+	} else if utils.IsSameTime(fm.OriginTime, fm.FSTime) {
+		return false
+	}
+
+	return true
+}
+
+func (fm *FileMap) LocalIsMoreRecent() bool {
+	if utils.IsMoreRecentTime(fm.OriginTime, fm.FSTime) {
+		return true
+	} else if utils.IsSameTime(fm.OriginTime, fm.FSTime) {
+		return false
+	}
+
+	return false
+}
+
 // Update the Files in the file map
 func (fm *FileMap) Update(mode ...string) error {
 	// Variables to track push/pull mode
