@@ -27,6 +27,17 @@ func NewFileMap() *FileMap {
 	return &fm
 }
 
+func (fm *FileMap) SetFilename(filename string) error {
+	fm.Origin = filename
+	var err error
+	fm.FSPath, err = FindInFS(fm.GetOriginFilename())
+	if err != nil {
+		return err
+	}
+	fm.Refresh()
+	return nil
+}
+
 func (fm *FileMap) GetOriginFilename() string {
 	filename := path.Base(fm.Origin)
 	return filename

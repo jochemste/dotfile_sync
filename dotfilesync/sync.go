@@ -41,8 +41,9 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 
 		// Create filemap for file
 		fm := libdotfilesync.NewFileMap()
-		fm.Origin = f
-		fm.FSPath, err = libdotfilesync.FindInFS(fm.GetOriginFilename())
+		err = fm.SetFilename(f)
+		//fm.Origin = f
+		//fm.FSPath, err = libdotfilesync.FindInFS(fm.GetOriginFilename())
 		if err != nil && err.Error() == "Could not find file: File was not found" {
 			fmt.Printf("%s does not exist in repo yet.\n", fm.GetOriginFilename())
 		} else if err != nil {
