@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -196,6 +197,10 @@ func CopyFile(source string, dest string) error {
 	}
 
 	return nil
+}
+
+func IsWritable(filename string) bool {
+	return syscall.Access(filename, syscall.O_RDWR) == nil
 }
 
 func getFilePerm(filename string) (os.FileMode, error) {

@@ -75,7 +75,15 @@ func (config *Config) FromFile(file string) error {
 
 	config.DoNotChange.File = file
 
+	writable := utils.IsWritable(file)
+	if writable != true {
+		return errors.New("File " + file + " is not writable for the current user")
+	}
 	return nil
+}
+
+func (config *Config) IsWritable() bool {
+	return utils.IsWritable(config.DoNotChange.File)
 }
 
 func (config *Config) Print() {

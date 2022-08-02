@@ -27,6 +27,17 @@ func NewFileMap() *FileMap {
 	return &fm
 }
 
+func (fm *FileMap) SetFilename(filename string) error {
+	fm.Origin = filename
+	var err error
+	fm.FSPath, err = FindInFS(fm.GetOriginFilename())
+	if err != nil {
+		return err
+	}
+	fm.Refresh()
+	return nil
+}
+
 func (fm *FileMap) GetOriginFilename() string {
 	filename := path.Base(fm.Origin)
 	return filename
@@ -87,6 +98,26 @@ func (fm *FileMap) ExistsLocal() bool {
 
 func (fm *FileMap) ExistsInFS() bool {
 	return ExistsInFS(fm.GetOriginFilename())
+}
+
+func (fm *FileMap) FMIsMoreRecent() bool {
+	if fm.LocalIsMoreRecent() {
+		return false
+	} else if utils.IsSameTime(fm.OriginTime, fm.FSTime) {
+		return false
+	}
+
+	return true
+}
+
+func (fm *FileMap) LocalIsMoreRecent() bool {
+	if utils.IsMoreRecentTime(fm.OriginTime, fm.FSTime) {
+		return true
+	} else if utils.IsSameTime(fm.OriginTime, fm.FSTime) {
+		return false
+	}
+
+	return false
 }
 
 // Update the Files in the file map
