@@ -196,6 +196,15 @@ func CopyFile(source string, dest string) error {
 		return errors.New("Could not copy file: " + err.Error())
 	}
 
+	uid, gid, err := getUidGid(source)
+	if err != nil {
+		return errors.New("Could not get UID or GID from file: " + err.Error())
+	}
+	err = os.Chown(dest, uid, gid)
+	if err != nil {
+		return errors.New("Could not change ownership of file: " + err.Error())
+	}
+
 	return nil
 }
 
@@ -206,4 +215,12 @@ func IsWritable(filename string) bool {
 func getFilePerm(filename string) (os.FileMode, error) {
 	stat, err := os.Stat(filename)
 	return stat.Mode(), err
+}
+
+func getUidGid(filename string) (int, int, error) {
+	file_info, err := os.Stat(filename)
+	file_sys := file_info.Sys()
+	gid := int(file_sys.(*syscall.Stat_t).Gid)
+	uid := int(file_sys.(*syscall.Stat_t).Uid)
+	return uid, gid, err
 }
