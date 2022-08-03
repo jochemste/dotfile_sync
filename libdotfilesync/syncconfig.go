@@ -66,6 +66,7 @@ func (sc *SyncConfig) Print() {
 }
 
 func (sc *SyncConfig) SetLastSync(t time.Time) {
+	fmt.Printf("Setting time to %s\n", t)
 	sc.LastSync = t
 	SyncChanged = true
 }

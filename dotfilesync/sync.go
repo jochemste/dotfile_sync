@@ -36,6 +36,7 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 	}
 	syncconfig.Print()
 
+	updateSync := false
 	// Loop through the files to check for changes
 	for _, f := range config.UserSettings.Files {
 
@@ -49,8 +50,6 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 		} else if err != nil {
 			return errors.New("Could not find file " + fm.GetOriginFilename() + ": " + err.Error())
 		}
-		fm.FSTime = syncconfig.LastSync
-		fm.Refresh()
 
 		// Determine if the file has changed (either local or remote)
 		isdiff, err := fm.HasChanged()
@@ -69,10 +68,15 @@ func Sync(config *libdotfilesync.Config, configfile string) error {
 				if err != nil {
 					return errors.New("Failed to commit " + fm.GetOriginFilename() + ": " + err.Error())
 				}
-				syncconfig.SetLastSync(time.Now())
+				updateSync = true
+
 			}
 		}
 		filemaps = append(filemaps, fm)
+	}
+
+	if updateSync == true {
+		syncconfig.SetLastSync(time.Now())
 	}
 
 	// Commit syncconfig
