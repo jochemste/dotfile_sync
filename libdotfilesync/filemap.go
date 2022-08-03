@@ -200,14 +200,14 @@ func (fm *FileMap) Update(mode ...string) error {
 	fmt.Println(fm.OriginTime)
 	fmt.Println(fm.FSTime)
 
-	ogIsMoreRecent := utils.IsMoreRecentTime(fm.OriginTime, fm.FSTime)
-	if push == true && ogIsMoreRecent == true {
+	//ogIsMoreRecent := utils.IsMoreRecentTime(fm.OriginTime, fm.FSTime)
+	if push == true && fm.LocalIsMoreRecent() == true {
 		// If local file is more recent, update the FS file (PUSH action)
 		fmt.Printf("Update: Local is more recent: %s\n", fm.Origin)
 		WriteToFS(fm.FSPath, cOrigin)
 		fm.NeedsCommit = true
 		fm.Message = "Changed " + fm.GetOriginFilename()
-	} else if pull == true && !ogIsMoreRecent {
+	} else if pull == true && fm.LocalIsMoreRecent() == false {
 		// If FS file is more recent, update local file
 		fmt.Printf("Update: FS is more recent: %s\n", fm.FSPath)
 		utils.CopyFile(fm.Origin, fm.Origin+".bak")
