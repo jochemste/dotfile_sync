@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	//"log"
 	"fmt"
 
 	"github.com/jochemste/dotfile_sync/libdotfilesync"
