@@ -3,62 +3,68 @@ package libdotfilesync
 import (
 	//"os"
 	"testing"
+
+	"github.com/jochemste/dotfile_sync/utils"
 )
 
-func TestRepoExists(t *testing.T) {
-	existing := [2]string{"/tmp", "/etc"}
-	nonexisting := [3]string{"/tmp/dotfile_syncc", "notanexistingrepo", "!@#%%43mksd"}
-
-	for _, r := range existing {
-		res := RepoExists(r)
-		if res == false {
-			t.Errorf("Repo %s does not appear to exist, but should.", r)
-		}
-	}
-
-	for _, r := range nonexisting {
-		res := RepoExists(r)
-		if res == true {
-			t.Errorf("Repo %s does appears to exist, but should not.", r)
-		}
+func TestInitWorks(t *testing.T) {
+	g := NewRepo()
+	if g == nil {
+		t.Errorf("NewRepo pointer is nil")
 	}
 }
 
-/*
-func TestGetRepoSSH(t *testing.T) {
-	repo_url := "git@github.com:jochemste/dotfile_sync.git"
-	privkey_file := os.Getenv("PWD") + "/../tmp/id_rsa"
-
-	_, err := CloneRepo(repo_url, "/tmp/dotfilesync_test", privkey_file)
+func TestRepoClonePublic(t *testing.T) {
+	g := NewRepo()
+	err := g.CloneRepo("https://github.com/jochemste/dotfile_sync.git")
 	if err != nil {
-		t.Errorf("Git clone did not work: %s", err)
-	}
-}
-*/
-
-func TestCloneRepoHTTP(t *testing.T) {
-	repo_url := "https://github.com/jochemste/dotfile_sync.git"
-
-	_, err := CloneRepo(repo_url, "/tmp/dotfilesync_test")
-	if err != nil {
-		t.Errorf("Git clone did not work: %s", err)
-	}
-
-	exists := RepoExists("/tmp/dotfilesync_test")
-	if exists == false {
-		t.Errorf("Repository does not exist")
+		t.Errorf("Public repo could not be cloned: %s", err)
 	}
 }
 
-func TestFindInFS(t *testing.T) {
-	repo_url := "https://github.com/jochemste/dotfile_sync.git"
-	_, err := CloneRepo(repo_url, "/tmp/dotfilesync_test")
-	if err != nil {
-		t.Errorf("Cloning failed: %s", err)
+func TestRepoClonePublicNonExisting(t *testing.T) {
+	g := NewRepo()
+	err := g.CloneRepo("https://github.com/jochemste/dotfile_synchronothingness.git")
+	if err == nil {
+		t.Errorf("Non existing repo clone did not throw an error")
 	}
-	_, err = FindInFS(".gitignore")
+}
+
+func TestCommitToRepo(t *testing.T) {
+	g := NewRepo()
+	err := g.CloneRepo("https://github.com/jochemste/dotfile_sync.git")
 	if err != nil {
-		t.Errorf("Find in repository failed: %s", err)
+		t.Errorf("Public repo could not be cloned: %s", err)
 	}
 
+	testfilename := "/tmp/test.test"
+	err = utils.CreateFile(testfilename)
+	if err != nil {
+		t.Errorf("Could not create filename: %s", err)
+	}
+
+	err = g.CommitToRepo(testfilename, "testing")
+	if err != nil {
+		t.Errorf("Could not commit file: %s", err)
+	}
+
+	err = utils.RemoveFile(testfilename)
+	if err != nil {
+		t.Errorf("Could not remove filename: %s", err)
+	}
+}
+
+func TestCommitToRepoNonExisting(t *testing.T) {
+	g := NewRepo()
+	err := g.CloneRepo("https://github.com/jochemste/dotfile_sync.git")
+	if err != nil {
+		t.Errorf("Public repo could not be cloned: %s", err)
+	}
+
+	testfilename := "/tmp/test.test"
+
+	err = g.CommitToRepo(testfilename, "testing")
+	if err != nil {
+		t.Errorf("Could not commit file: %s", err)
+	}
 }

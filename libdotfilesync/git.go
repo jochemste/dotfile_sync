@@ -3,11 +3,7 @@ package libdotfilesync
 import (
 	"errors"
 	"fmt"
-	"os"
-	"strings"
 	"time"
-
-	"github.com/jochemste/dotfile_sync/utils"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -19,7 +15,6 @@ type Gitter struct {
 	Repository *git.Repository
 	Storer     *memory.Storage
 	Worktree   *git.Worktree
-	//Filesystem FileSystem
 }
 
 func NewRepo() *Gitter {
@@ -28,40 +23,14 @@ func NewRepo() *Gitter {
 	return &g
 }
 
-func DetermMethod(origin string) (string, error) {
-	if strings.HasPrefix(origin, "git@") {
-		return "ssh", nil
-	} else if strings.HasPrefix(origin, "http") {
-		return "http", nil
-	} else {
-		return "", errors.New("Could not determine method")
-	}
-}
-
-// Tests if a repository exists
-func RepoExists(store_loc string) bool {
-	res := utils.DirExists(store_loc)
-	return res
-}
-
-// Delete the repository if it exists
-func DeleteRepoIfExists(store_loc string) error {
-	exists := RepoExists(store_loc)
-
-	if exists == true {
-		err := os.RemoveAll(store_loc)
-		return err
-	}
-	return nil
-}
-
+// Clone a remote repository into memory
 func (g *Gitter) CloneRepo(origin string, secret ...string) error {
 	NewFS()
 
 	var err error
 
 	if len(secret) != 1 {
-		// Git clone
+		// Git clone without a git token (public repos)
 		g.Repository, err = git.Clone(g.Storer, Filesystem.FS, &git.CloneOptions{
 			URL:   origin,
 			Depth: 5,
@@ -72,7 +41,7 @@ func (g *Gitter) CloneRepo(origin string, secret ...string) error {
 		}
 	} else {
 
-		// Git clone
+		// Git clone with a git token (private repos)
 		g.Repository, err = git.Clone(g.Storer, Filesystem.FS, &git.CloneOptions{
 			Auth: &http.BasicAuth{
 				Username: "dotfile_sync", // This can be anything, except for an empty string

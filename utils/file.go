@@ -160,6 +160,14 @@ func CreateFile(filename string) error {
 	return nil
 }
 
+func RemoveFile(filename string) error {
+	err := os.Remove(filename)
+	if err != nil {
+		return errors.New("Could not remove " + filename + ": " + err.Error())
+	}
+	return nil
+}
+
 func WriteToFile(filename string, content string) error {
 	if FileExists(filename) == false {
 		err := CreateFile(filename)
