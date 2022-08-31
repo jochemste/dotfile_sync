@@ -93,9 +93,11 @@ func GetFileContent(path string) (string, error) {
 	}
 
 	content, err := ioutil.ReadFile(path)
-	CheckIfError(err)
+	if err != nil {
+		err = errors.New("Could not read file: " + path)
+	}
 
-	return string(content), nil
+	return string(content), err
 }
 
 // Get the ModTime of a file
@@ -137,9 +139,14 @@ func IsDiff(path1 string, path2 string) (bool, error) {
 
 	dmp := diffmatchpatch.New()
 	t1, err := GetFileContent(path1)
-	CheckIfError(err)
+	if err != nil {
+		return false, errors.New("Could not get file content: " + path1)
+	}
+
 	t2, err := GetFileContent(path2)
-	CheckIfError(err)
+	if err != nil {
+		return false, errors.New("Could not get file content: " + path2)
+	}
 
 	diffs := dmp.DiffMain(t1, t2, false)
 	for _, d := range diffs {
