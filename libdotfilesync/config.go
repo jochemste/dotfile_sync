@@ -13,6 +13,17 @@ import (
 
 type Configuration interface {
 	ToFile(file ...string) error
+	FromFile(file string) error
+	IsWritable() bool
+	Equals(other *Config) (bool, error)
+	IsSameLastCheck(other *Config) (bool, error)
+	LastCheckIsAfter(other *Config) (bool, error)
+	LastCheckIsBefore(other *Config) (bool, error)
+	UpdateLastCheck() error
+	AddFile(file string) error
+	RemoveFile(file string) error
+	String() string
+	Print()
 }
 
 // Configuration that is managed by the user
@@ -111,6 +122,12 @@ func (config *Config) Equals(other *Config) (bool, error) {
 	}
 
 	// Check files is UserSettings to be the same, including the order
+	if isSame &&
+		(len(config.UserSettings.Files) != len(other.UserSettings.Files)) {
+		isSame = false
+		err = errors.New(fmt.Sprintf("File lists are not of equal length: %d, %d",
+			len(config.UserSettings.Files), len(other.UserSettings.Files)))
+	}
 	if isSame {
 		for i, _ := range config.UserSettings.Files {
 			if config.UserSettings.Files[i] != other.UserSettings.Files[i] {
@@ -131,29 +148,109 @@ func (config *Config) Equals(other *Config) (bool, error) {
 			config.String() + "\n" + other.String())
 	}
 
-	if isSame &&
-		(config.DoNotChange.LastCheck.Before(other.DoNotChange.LastCheck) == false) &&
-		(config.DoNotChange.LastCheck.After(other.DoNotChange.LastCheck)) {
-		isSame = false
-		err = errors.New("DoNotChange LastCheck time is different\n" +
-			fmt.Sprintf("%s\n", config.DoNotChange.LastCheck) +
-			fmt.Sprintf("%s", other.DoNotChange.LastCheck))
+	if isSame {
+		isSame, err = config.IsSameLastCheck(other)
+		if err != nil {
+			err = errors.New("LastCheck is different: " + err.Error())
+		}
 	}
 
 	return isSame, err
 }
 
-func (config *Config) IsSameTime(other *Config) (bool, error) {
-	if (config.DoNotChange.LastCheck.Before(other.DoNotChange.LastCheck) == false) &&
-		(config.DoNotChange.LastCheck.After(other.DoNotChange.LastCheck)) {
+func (config *Config) IsSameLastCheck(other *Config) (bool, error) {
+	var err error
+	err = nil
+	isSame := true
 
+	if config.DoNotChange.LastCheck.Equal(other.DoNotChange.LastCheck) == false {
+		isSame = false
+		err = errors.New("DoNotChange.LastCheck is not equal:\n" +
+			fmt.Sprintf("%s\n%s\n", config.DoNotChange.LastCheck,
+				other.DoNotChange.LastCheck))
 	}
+
+	return isSame, err
+}
+
+func (config *Config) LastCheckIsAfter(other *Config) (bool, error) {
+	var err error
+	err = nil
+	isAfter := true
+
+	if config.DoNotChange.LastCheck.After(other.DoNotChange.LastCheck) == false {
+		isAfter = false
+		err = errors.New("DoNotChange.LastCheck is not after:\n" +
+			fmt.Sprintf("%s\n%s\n", config.DoNotChange.LastCheck,
+				other.DoNotChange.LastCheck))
+	}
+
+	return isAfter, err
+}
+
+func (config *Config) LastCheckIsBefore(other *Config) (bool, error) {
+	var err error
+	err = nil
+	isBefore := true
+
+	if config.DoNotChange.LastCheck.Before(other.DoNotChange.LastCheck) == false {
+		isBefore = false
+		err = errors.New("DoNotChange.LastCheck is not before:\n" +
+			fmt.Sprintf("%s\n%s\n", config.DoNotChange.LastCheck,
+				other.DoNotChange.LastCheck))
+	}
+
+	return isBefore, err
 }
 
 func (config *Config) UpdateLastCheck() error {
 	var err error
 	err = nil
 	config.DoNotChange.LastCheck = time.Now()
+
+	return err
+}
+
+func (config *Config) FileInConfig(file string) bool {
+	exists := false
+	for i, _ := range config.UserSettings.Files {
+		if file == config.UserSettings.Files[i] {
+			exists = true
+		}
+	}
+	return exists
+}
+
+func (config *Config) AddFile(file string) error {
+	var err error
+	err = nil
+	exists := config.FileInConfig(file)
+
+	if !exists {
+		config.UserSettings.Files = append(config.UserSettings.Files, file)
+	} else {
+		err = errors.New("File already exists in config")
+	}
+
+	return err
+}
+
+func (config *Config) RemoveFile(file string) error {
+	var err error
+	err = nil
+	exists := config.FileInConfig(file)
+
+	if exists {
+		files := config.UserSettings.Files
+		config.UserSettings.Files = []string{}
+		for i, _ := range files {
+			if files[i] != file {
+				config.AddFile(files[i])
+			}
+		}
+	} else {
+		err = errors.New("File already exists in config")
+	}
 
 	return err
 }
