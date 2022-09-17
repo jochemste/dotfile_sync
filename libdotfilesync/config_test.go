@@ -7,7 +7,7 @@ import (
 	"github.com/jochemste/dotfile_sync/utils"
 )
 
-// TestConfigStoredAndRetrieved
+// TestConfigStoredAndRetrievedGW
 // Brief: Test if the configuration is stored and retrieved correctly
 // Good weather: Create config and store it in file. Get other config from same
 //               file and ensure they are equal
@@ -16,7 +16,7 @@ import (
 //        - Configuration 2 is retrieved from file
 //        - Configurations are equal
 //        - No errors occur
-func TestConfigStoredAndRetrieved(t *testing.T) {
+func TestConfigStoredAndRetrievedGW(t *testing.T) {
 	config := NewConfig()
 	configfile := "/tmp/.temptest"
 
@@ -51,7 +51,7 @@ func TestConfigStoredAndRetrieved(t *testing.T) {
 	}
 }
 
-// TestConfigIsDifferentTime
+// TestConfigIsDifferentTimeGW
 // Brief: Test if the configuration is stored and retrieved correctly
 // Good weather: Create config and store it in file. Get other config from same
 //               file, change the time and ensure they are not equal
@@ -60,7 +60,7 @@ func TestConfigStoredAndRetrieved(t *testing.T) {
 //        - Configuration 2 is retrieved from file
 //        - Configurations are not equal
 //        - No errors occur
-func TestConfigIsDifferentTime(t *testing.T) {
+func TestConfigIsDifferentTimeGW(t *testing.T) {
 	config := NewConfig()
 	configfile := "/tmp/.temptest"
 
@@ -90,7 +90,7 @@ func TestConfigIsDifferentTime(t *testing.T) {
 	}
 }
 
-// TestConfigIsDifferentFiles
+// TestConfigIsDifferentFilesGW
 // Brief: Test if the configuration is stored and retrieved correctly
 // Good weather: Create config and store it in file. Get other config from same
 //               file, add a file and ensure they are not equal
@@ -99,7 +99,7 @@ func TestConfigIsDifferentTime(t *testing.T) {
 //        - Configuration 2 is retrieved from file
 //        - Configurations are not equal
 //        - No errors occur
-func TestConfigIsDifferentFiles(t *testing.T) {
+func TestConfigIsDifferentFilesGW(t *testing.T) {
 	config := NewConfig()
 	configfile := "/tmp/.temptest"
 
@@ -130,7 +130,7 @@ func TestConfigIsDifferentFiles(t *testing.T) {
 	}
 }
 
-// TestConfigIsDifferentFiles2
+// TestConfigIsDifferentFilesGW2
 // Brief: Test if the configuration is stored and retrieved correctly
 // Good weather: Create config and store it in file. Get other config from same
 //               file, remove file and ensure they are not equal
@@ -139,7 +139,7 @@ func TestConfigIsDifferentFiles(t *testing.T) {
 //        - Configuration 2 is retrieved from file
 //        - Configurations are not equal
 //        - No errors occur
-func TestConfigIsDifferentFiles2(t *testing.T) {
+func TestConfigIsDifferentFilesGW2(t *testing.T) {
 	config := NewConfig()
 	configfile := "/tmp/.temptest"
 
